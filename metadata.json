@@ -1,0 +1,6 @@
+{
+  "name": "Dashboard Mitra - Manajemen Kontak Properti",
+  "description": "Pengelolaan kontak spesifik per properti dan penetapan posisi independen per seksi untuk mitra hotel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
