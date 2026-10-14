@@ -82,10 +82,21 @@ export const FeatureVerificationGuide: React.FC = () => {
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
               <div className="flex items-center gap-2 font-bold text-slate-900">
                 <UserPlus className="w-4 h-4 text-amber-600" />
-                <span>3. Tanpa Posisi Default & Cascade</span>
+                <span>3. Tambah Kontak & 7 Field</span>
               </div>
               <p className="leading-relaxed">
-                Klik <strong>+ Tambah Kontak</strong>: kontak baru otomatis memiliki posisi strip (<code>-</code>). Ketika kontak dihapus dari Kontak Tersedia, sistem membersihkan relasi seksi terkait secara otomatis.
+                Formulir kontak mencakup 7 field lengkap (Nama, Posisi, Email, Email Sekunder, Telepon, Fax, dan Jam Operasional). Posisi dapat disesuaikan per seksi secara independen.
+              </p>
+            </div>
+
+            {/* Box 4 */}
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 md:col-span-3">
+              <div className="flex items-center gap-2 font-bold text-slate-900">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>4. Simulasi Verifikasi Email & Validasi Penautan Seksi</span>
+              </div>
+              <p className="leading-relaxed">
+                Uji menambah kontak baru tanpa menekan tombol "Verifikasi Email". Saat klik <strong>Link Kontak Ini</strong>, sistem akan memblokir dan menampilkan peringatan validasi. Setelah diverifikasi (dengan countdown 120 detik berganti "Kirim Ulang"), kontak dapat di-link dan label email pada detail kontak akan berhias ikon ceklis hijau <em>circle</em>.
               </p>
             </div>
           </div>

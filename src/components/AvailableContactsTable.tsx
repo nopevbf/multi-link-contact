@@ -9,6 +9,7 @@ import {
   Trash2,
   Search,
   CheckCircle2,
+  XCircle,
   Mail,
   Users,
   Loader2
@@ -34,7 +35,8 @@ export const AvailableContactsTable: React.FC<AvailableContactsTableProps> = ({
     activeProperty,
     activeSection,
     getContactPositionsMap,
-    isContactLinkedToSection
+    isContactLinkedToSection,
+    showToast
   } = usePropertyContact();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -255,30 +257,55 @@ export const AvailableContactsTable: React.FC<AvailableContactsTableProps> = ({
 
                       {/* EMAIL */}
                       <td className="py-3.5 px-4 text-slate-600 font-normal">
-                        <a
-                          href={`mailto:${contact.email}`}
-                          className="hover:text-blue-700 hover:underline flex items-center gap-1.5 truncate max-w-[200px]"
-                        >
-                          <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">{contact.email}</span>
-                        </a>
+                        <div className="flex items-center gap-1.5 truncate max-w-[210px]">
+                          <a
+                            href={`mailto:${contact.email}`}
+                            className="hover:text-blue-700 hover:underline flex items-center gap-1.5 truncate"
+                          >
+                            <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="truncate">{contact.email}</span>
+                          </a>
+                          {contact.isEmailVerified ? (
+                            <span title="Email Terverifikasi" className="inline-flex items-center shrink-0">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            </span>
+                          ) : (
+                            <span title="Email Belum Terverifikasi" className="inline-flex items-center shrink-0">
+                              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* AKSI */}
                       <td className="py-3.5 px-4 text-center">
                         <div className="inline-flex items-center gap-1.5 justify-center">
-                          {/* "Link Kontak Ini" Button */}
+                          {/* "Link Kontak Ini" Button dengan validasi status verifikasi email */}
                           <button
                             type="button"
-                            onClick={() => onLinkContact(contact)}
+                            onClick={() => {
+                              if (!contact.isEmailVerified) {
+                                showToast(
+                                  `Kontak "${contact.name}" belum dapat ditautkan karena email belum diverifikasi. Silakan klik tombol Edit untuk memverifikasi email terlebih dahulu.`,
+                                  'warning',
+                                  'Email Belum Terverifikasi'
+                                );
+                                return;
+                              }
+                              onLinkContact(contact);
+                            }}
                             className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                               isLinkedToActive
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                                : !contact.isEmailVerified
+                                ? 'bg-white text-slate-700 border-slate-200/90 hover:bg-amber-50 hover:border-amber-300'
                                 : 'bg-white text-slate-800 border-slate-200/90 hover:bg-slate-50 hover:border-slate-300'
                             }`}
                             title={
                               isLinkedToActive
                                 ? `Kontak sudah terhubung ke ${activeSection.title}. Klik untuk ubah posisi.`
+                                : !contact.isEmailVerified
+                                ? 'Email belum diverifikasi. Klik untuk melihat informasi validasi.'
                                 : `Tautkan kontak ke ${activeSection.title}`
                             }
                           >

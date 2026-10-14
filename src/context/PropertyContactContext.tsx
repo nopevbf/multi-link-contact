@@ -33,6 +33,7 @@ interface PropertyContactContextType {
     phone: string;
     fax?: string;
     operationalHours?: import('../types').OperationalHoursType;
+    isEmailVerified?: boolean;
     notes?: string;
   }) => PropertyContact;
   updateContact: (
@@ -45,6 +46,7 @@ interface PropertyContactContextType {
       phone: string;
       fax?: string;
       operationalHours?: import('../types').OperationalHoursType;
+      isEmailVerified?: boolean;
       notes?: string;
     }
   ) => void;
@@ -63,8 +65,8 @@ interface PropertyContactContextType {
 const STORAGE_KEYS = {
   ACTIVE_PROP: 'noorbyte_mitra_active_property_v1',
   ACTIVE_SECTION: 'noorbyte_mitra_active_section_v1',
-  CONTACTS: 'noorbyte_mitra_contacts_v3',
-  ASSIGNMENTS: 'noorbyte_mitra_assignments_v1'
+  CONTACTS: 'noorbyte_mitra_contacts_v5',
+  ASSIGNMENTS: 'noorbyte_mitra_assignments_v2'
 };
 
 const PropertyContactContext = createContext<PropertyContactContextType | undefined>(undefined);
@@ -227,6 +229,7 @@ export const PropertyContactProvider: React.FC<{ children: ReactNode }> = ({ chi
     phone: string;
     fax?: string;
     operationalHours?: import('../types').OperationalHoursType;
+    isEmailVerified?: boolean;
     notes?: string;
   }) => {
     const newContact: PropertyContact = {
@@ -239,6 +242,7 @@ export const PropertyContactProvider: React.FC<{ children: ReactNode }> = ({ chi
       phone: data.phone.trim(),
       fax: data.fax?.trim() || '',
       operationalHours: data.operationalHours || '24/7',
+      isEmailVerified: data.isEmailVerified ?? false,
       notes: data.notes?.trim() || '',
       createdAt: new Date().toISOString()
     };
@@ -259,6 +263,7 @@ export const PropertyContactProvider: React.FC<{ children: ReactNode }> = ({ chi
       phone: string;
       fax?: string;
       operationalHours?: import('../types').OperationalHoursType;
+      isEmailVerified?: boolean;
       notes?: string;
     }
   ) => {

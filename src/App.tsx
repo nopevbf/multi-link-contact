@@ -14,7 +14,7 @@ import { FeatureVerificationGuide } from './components/FeatureVerificationGuide'
 import { ToastContainer } from './components/Toast';
 
 const DashboardMitraContent: React.FC = () => {
-  const { activeSection } = usePropertyContact();
+  const { activeSection, showToast } = usePropertyContact();
 
   // Modal States
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
@@ -44,8 +44,16 @@ const DashboardMitraContent: React.FC = () => {
     setIsAddEditOpen(true);
   };
 
-  // Handler for Link Contact to Active Section
+  // Handler for Link Contact to Active Section (Validasi verifikasi email)
   const handleOpenLinkModal = (contact: PropertyContact) => {
+    if (!contact.isEmailVerified) {
+      showToast(
+        `Kontak "${contact.name}" tidak dapat ditautkan karena email belum diverifikasi. Harap verifikasi email terlebih dahulu melalui Edit Kontak.`,
+        'warning',
+        'Email Belum Terverifikasi'
+      );
+      return;
+    }
     setContactToLink(contact);
     setIsLinkOpen(true);
   };

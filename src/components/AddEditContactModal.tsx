@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PropertyContact, PRESET_POSITIONS, OperationalHoursType } from '../types';
 import { usePropertyContact } from '../context/PropertyContactContext';
-import { X, Check } from 'lucide-react';
+import { X, Check, CheckCircle2 } from 'lucide-react';
 
 interface AddEditContactModalProps {
   contactToEdit?: PropertyContact | null;
@@ -26,6 +26,8 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
   const [isCustomPosition, setIsCustomPosition] = useState(false);
   // 3. Email *
   const [email, setEmail] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   // 4. Email sekunder (jika ada)
   const [secondaryEmail, setSecondaryEmail] = useState('');
   // 5. Nomor Telepon *
@@ -36,6 +38,19 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
   const [operationalHours, setOperationalHours] = useState<OperationalHoursType>('24/7');
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Countdown timer 120s
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [countdown]);
 
   useEffect(() => {
     if (contactToEdit) {
@@ -52,6 +67,7 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
         setCustomPosition(pos);
       }
       setEmail(contactToEdit.email || '');
+      setIsEmailVerified(contactToEdit.isEmailVerified ?? false);
       setSecondaryEmail(contactToEdit.secondaryEmail || '');
       setPhone(contactToEdit.phone || '');
       setFax(contactToEdit.fax || '');
@@ -62,11 +78,13 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
       setIsCustomPosition(false);
       setCustomPosition('');
       setEmail('');
+      setIsEmailVerified(false);
       setSecondaryEmail('');
       setPhone('');
       setFax('');
       setOperationalHours('24/7');
     }
+    setCountdown(0);
     setErrors({});
   }, [contactToEdit, isOpen]);
 
@@ -104,6 +122,26 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
     return Object.keys(errs).length === 0;
   };
 
+  const handleStartVerification = () => {
+    if (!email.trim()) {
+      setErrors((prev) => ({ ...prev, email: 'Masukkan email terlebih dahulu sebelum verifikasi.' }));
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErrors((prev) => ({ ...prev, email: 'Format email tidak valid.' }));
+      return;
+    }
+
+    // Simulasi langsung terverifikasi saat tombol diklik & countdown 120s
+    setIsEmailVerified(true);
+    setCountdown(120);
+    setErrors((prev) => {
+      const copy = { ...prev };
+      delete copy.email;
+      return copy;
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -115,6 +153,7 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
         name: name.trim(),
         basePosition: finalPosition,
         email: email.trim(),
+        isEmailVerified,
         secondaryEmail: secondaryEmail.trim(),
         phone: phone.trim(),
         fax: fax.trim(),
@@ -125,6 +164,7 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
         name: name.trim(),
         basePosition: finalPosition,
         email: email.trim(),
+        isEmailVerified,
         secondaryEmail: secondaryEmail.trim(),
         phone: phone.trim(),
         fax: fax.trim(),
@@ -236,7 +276,7 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
               {errors.basePosition && <p className="text-xs text-rose-600">{errors.basePosition}</p>}
             </div>
 
-            {/* 3. Email * */}
+            {/* 3. Email * dengan simulasi verifikasi & countdown 120s */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-slate-800">
                 Email <span className="text-rose-500">*</span>
@@ -247,12 +287,51 @@ export const AddEditContactModal: React.FC<AddEditContactModalProps> = ({
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
+                  setIsEmailVerified(false); // Reset status jika email diubah
                   if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
                 }}
                 className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 ${
                   errors.email ? 'border-rose-400' : 'border-slate-200 focus:border-blue-600'
                 }`}
               />
+
+              {/* Baris simulasi fitur verifikasi email */}
+              <div className="flex items-center justify-between pt-1 text-xs">
+                {isEmailVerified ? (
+                  <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Email Terverifikasi</span>
+                  </div>
+                ) : (
+                  <span className="text-slate-400">
+                    Email belum diverifikasi
+                  </span>
+                )}
+
+                {!isEmailVerified ? (
+                  <button
+                    type="button"
+                    onClick={handleStartVerification}
+                    className="font-semibold text-blue-700 hover:text-blue-900 hover:underline transition-colors cursor-pointer"
+                  >
+                    Verifikasi Email
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleStartVerification}
+                    disabled={countdown > 0}
+                    className={`font-semibold transition-colors ${
+                      countdown > 0
+                        ? 'text-slate-400 cursor-not-allowed'
+                        : 'text-blue-700 hover:text-blue-900 hover:underline cursor-pointer'
+                    }`}
+                  >
+                    {countdown > 0 ? `Kirim ulang (${countdown}s)` : 'Kirim ulang'}
+                  </button>
+                )}
+              </div>
+
               {errors.email && <p className="text-xs text-rose-600">{errors.email}</p>}
             </div>
 

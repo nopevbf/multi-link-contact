@@ -18,6 +18,7 @@ export interface PropertyContact {
   phone: string;
   fax?: string;
   operationalHours?: OperationalHoursType;
+  isEmailVerified?: boolean;
   notes?: string;
   createdAt: string;
   updatedAt?: string;

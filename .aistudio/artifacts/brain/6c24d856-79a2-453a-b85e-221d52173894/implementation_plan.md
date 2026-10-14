@@ -1,67 +1,64 @@
-# Pembaruan Formulir Modal Tambah Kontak & Kelengkapan Data PIC
+# Simulasi Verifikasi Email Kontak & Validasi Penautan Seksi
 
-Penyesuaian antarmuka dan struktur data formulir modal Tambah/Edit Kontak sesuai dengan format acuan visual yang diunggah pengguna, mencakup 7 field lengkap (Nama Kontak, Posisi, Email, Email Sekunder, Nomor Telepon, Fax, dan Jam Operasional) dengan penataan 2 kolom yang presisi.
+Implementasi fitur simulasi verifikasi email tepat di bawah field Email pada modal Tambah/Edit Kontak dengan hitung mundur (*countdown*) 120 detik dan teks "Kirim Ulang", icon ceklis hijau *circle* pada label email di detail kontak, validasi pencegahan penautan (*link*) ke seksi untuk email yang belum diverifikasi, serta migrasi seluruh data kontak lama menjadi terverifikasi.
 
 ### User Review & Critical Decisions
 
 > [!IMPORTANT]
-> Ringkasan keputusan berdasarkan klarifikasi kebutuhan pengguna:
+> Ringkasan keputusan penting berdasarkan klarifikasi pengguna:
 
-- **Peran Posisi pada Modal Tambah Kontak**: Posisi yang dipilih pada modal Tambah Kontak berfungsi sebagai posisi dasar/default profil kontak. Saat kontak di-link ke seksi tertentu, posisi default ini otomatis terisi namun tetap dapat diubah atau disesuaikan secara independen untuk tiap seksi tanpa saling menimpa.
-- **Tampilan Jam Operasional**: Ditampilkan sebagai opsi pilihan tunggal (*single-choice*) berformat kotak horizontal sesuai gambar acuan (*Available 24/7*, *Working Hours (9 AM-5 PM)*, dan *Hide Operational Hours*).
-- **Tata Letak Formulir 2 Kolom**:
-  - Kolom Kiri: Nama Kontak (\*), Email (\*), Nomor Telepon (\*)
-  - Kolom Kanan: Posisi (\*), Email sekunder (jika ada), Fax (jika ada)
-  - Bagian Bawah: Jam Operasional (pilihan tunggal horizontal)
+- **Alur Simulasi Verifikasi**: Begitu tombol verifikasi di bawah field email diklik, email langsung berstatus terverifikasi (*verified*) secara otomatis dalam simulasi, dan tombol langsung beralih ke mode hitung mundur 120 detik dengan label teks "Kirim Ulang (120s)" hingga timer selesai.
+- **Status Data Lama**: Seluruh kontak awal yang sudah ada diatur berstatus `isEmailVerified: true` sehingga penugasan yang sudah ada tetap valid dan fungsional.
+- **Validasi Penautan Seksi**: Tombol "Link Kontak Ini" tetap dapat diklik, namun jika email kontak belum diverifikasi, sistem akan memunculkan dialog/notifikasi peringatan validasi bahwa kontak belum dapat di-link sampai emailnya diverifikasi.
+- **Indikator Visual Detail Kontak**: Pada modal detail kontak (ikon mata), label Email dilengkapi ikon ceklis hijau *circle* (`CheckCircle2 text-emerald-600`) sebagai penanda resmi status terverifikasi.
 
 ---
 
 ### 1. Overview & Core Concept
 
-- **Apa yang Diubah**: Memperbarui modal tambah dan edit kontak agar mencakup atribut komunikasi properti yang lengkap sesuai standar operasional hotel, serta menyelaraskan tata letak visual persis dengan referensi visual yang diberikan.
-- **Nilai Tambah**:
-  1. Data kontak lebih komprehensif dengan adanya email cadangan/sekunder, jalur fax hotel, dan preferensi jam operasional PIC.
-  2. Alur penautan lebih cepat: kontak yang baru ditambahkan langsung memiliki posisi dasar yang dapat digunakan otomatis saat menautkan ke seksi, tanpa menghilangkan fleksibilitas posisi independen per seksi.
+- **Apa yang Dibangun**: Mekanisme verifikasi identitas email PIC hotel untuk memastikan bahwa korespondensi penting sistem OTA hanya ditautkan ke PIC yang email resminya telah divalidasi.
+- **Nilai Utama**:
+  1. Keamanan & Kredibilitas: Mencegah kesalahan penautan email yang belum valid ke seksi-seksi penting seperti *Invoice & Payment* atau *Customer Support*.
+  2. Pengalaman Pengguna Realistis: Fitur countdown 120 detik mencegah *spamming* permintaan OTP/verifikasi dengan indikator visual yang jelas.
 
 ---
 
 ### 2. User Experience & Visual Design
 
-#### A. Struktur Formulir Modal Tambah / Edit Kontak
-1. **Baris 1 (2 Kolom)**:
-   - **Nama Kontak \***: Input teks dengan placeholder `"Nama lengkap"`.
-   - **Posisi \***: Dropdown seleksi posisi standar (seperti *Hotel Receptionist*, *Finance Manager*, *Hotel Operational*, *General Manager*, dll.) dengan opsi input teks kustom.
-2. **Baris 2 (2 Kolom)**:
-   - **Email \***: Input email utama dengan placeholder `"Contoh: receptionist@gmail.com"`.
-   - **Email sekunder (jika ada)**: Input email cadangan dengan placeholder `"Contoh: receptionist2@gmail.com"`.
-3. **Baris 3 (2 Kolom)**:
-   - **Nomor Telepon \***: Input telepon / WhatsApp dengan placeholder `"Contoh: 0812-3456-7890"`.
-   - **Fax (jika ada)**: Input nomor fax dengan placeholder `"Contoh: (021) 555-1234"`.
-4. **Baris 4 (Lebar Penuh)**:
-   - Label: `"Jam Operasional (hanya bisa piliha satu)"`.
-   - Pilihan interaktif horizontal:
-     - `[ ] Available 24/7`
-     - `[ ] Working Hours (9 AM-5 PM)`
-     - `[ ] Hide Operational Hours`
-   - Interaksi eksklusif: memilih salah satu akan otomatis mengosongkan pilihan lainnya.
-5. **Aksi Tombol**:
-   - `Batal` dan `Simpan Kontak`.
+#### A. Formulir Modal Tambah / Edit Kontak (Di Bawah Field Email)
+- Di bawah input `Email *`, terdapat baris aksi simulasi:
+  - **State Belum Verifikasi**:
+    - Tombol tautan/aksi: `[ Verifikasi Email ]` berwarna biru profesional dengan icon shield/check.
+    - Informasi panduan singkat: *"Email harus diverifikasi sebelum kontak dapat di-link ke seksi."*
+  - **Saat Diklik**:
+    - Email langsung berstatus terverifikasi (`isEmailVerified = true`).
+    - Muncul badge status hijau: `✓ Email Berhasil Terverifikasi`.
+    - Tombol beralih menjadi nonaktif (*disabled*) dengan teks: `Kirim Ulang (120s)` dengan countdown detik berjalan mundur (119s, 118s ... 0s).
+    - Ketika countdown mencapai 0, teks kembali menjadi `Kirim Ulang Verifikasi` dan tombol aktif kembali.
 
-#### B. Integrasi Visual pada Tabel & Modal Detail
-- **Tabel Kontak Tersedia**:
-  - Menampilkan posisi dasar kontak jika belum di-link ke seksi mana pun, atau menampilkan badge seksi yang terhubung jika sudah di-link.
-- **Modal Detail Kontak (Ikon Mata)**:
-  - Menampilkan ringkasan lengkap: Email primer, Email sekunder, Nomor Telepon, Nomor Fax, dan Badge Jam Operasional.
+#### B. Modal Detail Kontak (Ikon Mata)
+- Pada label **Email Utama**:
+  - Ditampilkan icon ceklis hijau *circle* (`CheckCircle2` hijau emerald) tepat di samping label / alamat email terverifikasi:
+    `Email Utama (✓ Terverifikasi)` dengan badge hijau lembut.
+  - Jika belum diverifikasi (pada kontak baru yang belum diverifikasi): ditampilkan label abu-abu/kuning `(Belum Terverifikasi)`.
+
+#### C. Validasi Penautan pada Tabel Kontak Tersedia (Link Kontak Ini)
+- Ketika user mengklik **Link Kontak Ini**:
+  - Sistem memeriksa apakah `contact.isEmailVerified` bernilai `true`.
+  - Jika `false`, modal penautan **TIDAK dibuka**, dan sistem memunculkan toast/dialog peringatan validasi:
+    *"Gagal menautkan: Email [Nama Kontak] belum diverifikasi. Harap verifikasi email kontak terlebih dahulu melalui Edit Kontak."*
+  - Jika `true`, modal pemilihan posisi seksi terbuka normal seperti biasa.
 
 ---
 
 ### 3. Key Product Decisions & Trade-Offs
 
-- **Model Data Terstruktur (Backward Compatible)**:
-  - *Pendekatan*: Menambahkan field opsional `secondaryEmail`, `fax`, `operationalHours`, dan `basePosition` ke tipe `PropertyContact`.
-  - *Rasional*: Memastikan data kontak yang sudah ada tetap valid tanpa error, sementara kontak baru langsung memanfaatkan atribut lengkap ini.
-- **Sinkronisasi Posisi**:
-  - *Pendekatan*: Ketika user mengklik `Link Kontak Ini`, modal penautan seksi akan mempramuat (*pre-fill*) posisi dasar kontak sebagai default, sehingga user cukup klik konfirmasi atau menggantinya jika posisi pada seksi tersebut berbeda.
+- **Model Data `isEmailVerified`**:
+  - *Pendekatan*: Menambahkan field boolean `isEmailVerified: boolean` (default `true` untuk kontak lama, `false` untuk kontak baru sebelum tombol verifikasi diklik).
+  - *Rasional*: Memastikan integritas data dan backward-compatibility sempurna.
+- **Penyimpanan State Hitung Mundur**:
+  - *Pendekatan*: Timer countdown 120 detik dijalankan via hook `useEffect` dengan interval 1 detik di dalam modal.
+  - *Rasional*: Ringan, presisi, dan tidak memberatkan re-render global.
 
 ---
 
@@ -69,40 +66,28 @@ Penyesuaian antarmuka dan struktur data formulir modal Tambah/Edit Kontak sesuai
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                      Modal Tambah / Edit Kontak                        │
+│ Modal Tambah/Edit Kontak                                               │
 │                                                                        │
-│   Nama Kontak *                      Posisi *                          │
-│   [ Nama lengkap               ]     [ Hotel Receptionist        ▼ ]   │
-│                                                                        │
-│   Email *                            Email sekunder (jika ada)         │
-│   [ Contoh: receptionist@...   ]     [ Contoh: receptionist2@...   ]   │
-│                                                                        │
-│   Nomor Telepon *                    Fax (jika ada)                    │
-│   [ Contoh: 0812-3456-7890     ]     [ Contoh: (021) 555-1234      ]   │
-│                                                                        │
-│   Jam Operasional (hanya bisa piliha satu)                             │
-│   [■] Available 24/7   [ ] Working Hours (9 AM-5 PM)  [ ] Hide Hours   │
-│                                                                        │
-│                                                  [Batal] [Simpan]      │
+│   Email *                                                              │
+│   [ receptionist@gmail.com                                           ] │
+│   ┌──────────────────────────────────────────────────────────────────┐ │
+│   │ [ Verifikasi Email ]  ──► [✓ Terverifikasi] [Kirim Ulang (120s)] │ │
+│   └──────────────────────────────────────────────────────────────────┘ │
 └────────────────────────────────────────────────────────────────────────┘
-```
-
-#### Struktur Tipe TypeScript
-```typescript
-export type OperationalHoursType = '24/7' | 'working_hours' | 'hidden';
-
-export interface PropertyContact {
-  id: string;
-  propertyId: string;
-  name: string;
-  basePosition: string; // Posisi dasar yang diisi saat Tambah Kontak
-  email: string;
-  secondaryEmail?: string;
-  phone: string;
-  fax?: string;
-  operationalHours: OperationalHoursType;
-  notes?: string;
-  createdAt: string;
-  updatedAt?: string;
-}
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Validasi Saat Klik "Link Kontak Ini"                                   │
+│                                                                        │
+│ • isEmailVerified === true  ──► Buka Modal Link Posisi Seksi           │
+│ • isEmailVerified === false ──► Blokir & Tampilkan Peringatan Validasi │
+└────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Modal Detail Kontak                                                    │
+│                                                                        │
+│   Email Utama                                                          │
+│   receptionist@gmail.com  (● ✓ Terverifikasi)                          │
+└────────────────────────────────────────────────────────────────────────┘
 ```

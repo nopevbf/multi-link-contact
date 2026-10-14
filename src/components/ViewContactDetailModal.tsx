@@ -1,7 +1,7 @@
 import React from 'react';
 import { PropertyContact } from '../types';
 import { usePropertyContact } from '../context/PropertyContactContext';
-import { X, Mail, Phone, Calendar, User, Briefcase, Plus, Edit2, Trash2 } from 'lucide-react';
+import { X, Mail, Phone, Calendar, User, Briefcase, Plus, Edit2, Trash2, CheckCircle2, XCircle } from 'lucide-react';
 
 interface ViewContactDetailModalProps {
   contact: PropertyContact | null;
@@ -78,7 +78,16 @@ export const ViewContactDetailModal: React.FC<ViewContactDetailModalProps> = ({
               <div className="space-y-1">
                 <span className="text-slate-500 flex items-center gap-1.5 font-medium">
                   <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  Email
+                  <span>Email</span>
+                  {contact.isEmailVerified ? (
+                    <span title="Email Terverifikasi" className="inline-flex items-center">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    </span>
+                  ) : (
+                    <span title="Email Belum Terverifikasi" className="inline-flex items-center">
+                      <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    </span>
+                  )}
                 </span>
                 <p className="font-semibold text-slate-900 break-all">{contact.email}</p>
               </div>

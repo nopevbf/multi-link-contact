@@ -1,6 +1,6 @@
 {
-  "summary": "Rencana pembaruan formulir modal Tambah/Edit Kontak dengan 7 field spesifik (Nama Kontak, Posisi, Email, Email Sekunder, Nomor Telepon, Fax, dan Jam Operasional horizontal), integrasi model data, dan sinkronisasi posisi default per seksi.",
-  "updatedAt": "2026-10-14T09:58:09.675455142Z",
+  "summary": "Rencana implementasi fitur simulasi verifikasi email di bawah field email (countdown 120 detik berganti Kirim Ulang), icon ceklis hijau circle pada detail kontak, validasi blokir penautan seksi jika belum diverifikasi, dan penyesuaian status verified pada seluruh data kontak lama.",
+  "updatedAt": "2026-10-14T10:22:27.139493772Z",
   "requestFeedback": true,
   "userFacing": true
 }
